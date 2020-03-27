@@ -1,6 +1,7 @@
 package main
 
 import (
+	"DarProject-master/attendances"
 	"DarProject-master/config"
 	"DarProject-master/courses"
 	"DarProject-master/lessons"
@@ -73,7 +74,18 @@ func runRestApi(*cli.Context) error{
 	if conf.Port == "" {
 		return errors.New("Nothing found in MongoDB Port variable")
 	}
+	//attendances
+	attendancerepo,err:=attendances.NewAttendanceRepository(conf)
+	if err!=nil{
+		return err
 
+	}
+	attendancesendpoints:=attendances.NewEndpointsFactory(attendancerepo)
+	router.Methods("GET").Path("/attendances/").HandlerFunc(attendancesendpoints.GetAttendances())
+	router.Methods("POST").Path("/attendances/").HandlerFunc(attendancesendpoints.AddAttendance())
+	router.Methods("GET").Path("/attendances/{id}").HandlerFunc(attendancesendpoints.GetAttendance("id"))
+	router.Methods("DELETE").Path("/attendances/{id}").HandlerFunc(attendancesendpoints.DeleteAttendance("id"))
+	router.Methods("PUT").Path("/attendances/{id}").HandlerFunc(attendancesendpoints.UpdateAttendance("id"))
 	//lessons
 	lessonsrepo,err:=lessons.NewLessonRepository(conf)
 	if err!=nil{

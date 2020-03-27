@@ -11,4 +11,5 @@ type Attendance struct {
 	Id int64 `json:"id,pk"`
 	LessonId int64 `json:"lessonid"`
 	StudentId int64 `json:"studentid"`
+	Exist bool `json:"exist"`
 }
