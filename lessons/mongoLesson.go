@@ -88,6 +88,19 @@ func (ls *lessonrepo) Update(l *Lesson)  (*Lesson,error){
 	}
 	return l,nil
 }
+func (ls *lessonrepo) GetLessonsByCourseId(id int64) ([]*Lesson,error){
+	lessons,err:=ls.Get()
+	if err!=nil{
+		return nil,err
+	}
+	var current_lessons []*Lesson
+	for _,v :=range lessons{
+		if v.CourseId == id{
+			current_lessons=append(current_lessons,v)
+		}
+	}
+	return current_lessons,nil
+}
 func (ls *lessonrepo) Remove(l *Lesson) error{
 	filter:=bson.D{{"id",l.Id}}
 	_,err:=collection.DeleteOne(context.TODO(),filter)

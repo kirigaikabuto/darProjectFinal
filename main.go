@@ -72,18 +72,7 @@ func runRestApi(*cli.Context) error{
 	if conf.Port == "" {
 		return errors.New("Nothing found in MongoDB Port variable")
 	}
-	//courses
 
-	coursesrepo,err:=courses.NewCourseRepository(conf)
-	if err!=nil{
-		return err
-	}
-	coursesendpoints:=courses.NewEndpointsFactory(coursesrepo)
-	router.Methods("GET").Path("/courses/").HandlerFunc(coursesendpoints.GetCourses())
-	router.Methods("POST").Path("/courses/").HandlerFunc(coursesendpoints.AddCourse())
-	router.Methods("GET").Path("/courses/{id}").HandlerFunc(coursesendpoints.GetCourse("id"))
-	router.Methods("DELETE").Path("/courses/{id}").HandlerFunc(coursesendpoints.DeleteCourse("id"))
-	router.Methods("PUT").Path("/courses/{id}").HandlerFunc(coursesendpoints.UpdateCourse("id"))
 	//lessons
 	lessonsrepo,err:=lessons.NewLessonRepository(conf)
 	if err!=nil{
@@ -95,6 +84,19 @@ func runRestApi(*cli.Context) error{
 	router.Methods("GET").Path("/lessons/{id}").HandlerFunc(lessonsendpoints.GetLesson("id"))
 	router.Methods("DELETE").Path("/lessons/{id}").HandlerFunc(lessonsendpoints.DeleteLesson("id"))
 	router.Methods("PUT").Path("/lessons/{id}").HandlerFunc(lessonsendpoints.UpdateLesson("id"))
+	//courses
+
+	coursesrepo,err:=courses.NewCourseRepository(conf)
+	if err!=nil{
+		return err
+	}
+	coursesendpoints:=courses.NewEndpointsFactory(coursesrepo,lessonsrepo)
+	router.Methods("GET").Path("/courses/").HandlerFunc(coursesendpoints.GetCourses())
+	router.Methods("POST").Path("/courses/").HandlerFunc(coursesendpoints.AddCourse())
+	router.Methods("GET").Path("/courses/{id}").HandlerFunc(coursesendpoints.GetCourse("id"))
+	router.Methods("DELETE").Path("/courses/{id}").HandlerFunc(coursesendpoints.DeleteCourse("id"))
+	router.Methods("PUT").Path("/courses/{id}").HandlerFunc(coursesendpoints.UpdateCourse("id"))
+	router.Methods("GET").Path("/courses/{id}/lessons/").HandlerFunc(coursesendpoints.GetLessons("id"))
 	//students
 	studentrepo,err:=students.NewStudentRepository(conf)
 	if err!=nil{

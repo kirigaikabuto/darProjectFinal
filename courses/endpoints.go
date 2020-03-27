@@ -1,6 +1,7 @@
 package courses
 
 import (
+	"DarProject-master/lessons"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -13,16 +14,43 @@ type Endpoints interface {
 	GetCourse(idParam string) func(w http.ResponseWriter,r *http.Request)
 	DeleteCourse(idParam string) func(w http.ResponseWriter,r *http.Request)
 	UpdateCourse(idParam string) func(w http.ResponseWriter,r *http.Request)
+	GetLessons(idParam string) func(w http.ResponseWriter,r *http.Request)
 }
 type endpointsFactory struct {
 	courseRep CourseRepository
+	lessonRep lessons.LessonRepository
 }
-func NewEndpointsFactory(rep CourseRepository) Endpoints{
+func NewEndpointsFactory(rep CourseRepository,les lessons.LessonRepository) Endpoints{
 	return &endpointsFactory{
 		courseRep: rep,
+		lessonRep:les,
 	}
 }
-
+func (ef *endpointsFactory) GetLessons(idParam string) func(w http.ResponseWriter,r *http.Request){
+	return func(w http.ResponseWriter,r *http.Request){
+		vars:=mux.Vars(r)
+		paramid,paramerr:=vars[idParam]
+		if !paramerr{
+			respondJSON(w,http.StatusBadRequest,"Не был передан аргумент")
+			return
+		}
+		id,err:=strconv.ParseInt(paramid,10,10)
+		if err!=nil{
+			respondJSON(w,http.StatusBadRequest,err.Error())
+			return
+		}
+		course,err:=ef.courseRep.GetCourse(id)
+		if err!=nil{
+			respondJSON(w,http.StatusInternalServerError,err.Error())
+			return
+		}
+		lessons,err:=ef.lessonRep.GetLessonsByCourseId(course.Id)
+		if err!=nil{
+			respondJSON(w,http.StatusInternalServerError,err.Error())
+		}
+		respondJSON(w,http.StatusOK,lessons)
+	}
+}
 func (ef *endpointsFactory) AddCourse() func(w http.ResponseWriter,r *http.Request){
 	return func(w http.ResponseWriter,r *http.Request){
 		data,err:=ioutil.ReadAll(r.Body)
@@ -70,12 +98,12 @@ func (ef *endpointsFactory) GetCourse(idParam string) func(w http.ResponseWriter
 			respondJSON(w,http.StatusBadRequest,err.Error())
 			return
 		}
-		student,err:=ef.courseRep.GetCourse(id)
+		course,err:=ef.courseRep.GetCourse(id)
 		if err!=nil{
 			respondJSON(w,http.StatusInternalServerError,err.Error())
 			return
 		}
-		respondJSON(w,http.StatusOK,student)
+		respondJSON(w,http.StatusOK,course)
 	}
 }
 func (ef *endpointsFactory) DeleteCourse(idParam string) func(w http.ResponseWriter,r *http.Request){

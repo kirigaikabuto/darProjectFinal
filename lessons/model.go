@@ -6,6 +6,7 @@ type LessonRepository interface {
 	GetById(id int64) (*Lesson,error)
 	Remove(l *Lesson) error
 	Update(l *Lesson)  (*Lesson,error)
+	GetLessonsByCourseId(id int64) ([]*Lesson,error)
 }
 type Lesson struct{
 	Id int64 `json:"id"`
