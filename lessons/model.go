@@ -11,8 +11,11 @@ type LessonRepository interface {
 type Lesson struct{
 	Id int64 `json:"id"`
 	Name string `json:"name"`
-	Description string `json:"description"`
-	VideoLink string `json:"videolink"`
-	Resource string `json:"resource"`
-	CourseId int64 `json:"courseid"`
+	Date string   `json:"date"`
+	TimeStart string `json:"timestart"`
+	TimeEnd string `json:"timeend"`
+	ScheduleId int64 `json:"scheduleid"`
 }
+//Description string `json:"description"`
+//VideoLink string `json:"videolink"`
+//Resource string `json:"resource"`

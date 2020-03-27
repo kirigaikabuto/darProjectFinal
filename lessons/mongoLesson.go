@@ -3,6 +3,7 @@ package lessons
 import (
 	"DarProject-master/config"
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -53,8 +54,8 @@ func(ls *lessonrepo) Add(l *Lesson) (*Lesson,error){
 	mylessons,err:=ls.Get()
 	n:=len(mylessons)
 	if n!=0{
-		last_course:=mylessons[n-1]
-		l.Id = last_course.Id+1
+		last_lesson:=mylessons[n-1]
+		l.Id = last_lesson.Id+1
 	}else{
 		l.Id = 1
 	}
@@ -77,10 +78,11 @@ func (ls *lessonrepo) Update(l *Lesson)  (*Lesson,error){
 	filter:=bson.D{{"id",l.Id}}
 	update:=bson.D{{"$set",bson.D{
 		{"name",l.Name},
-		{"description",l.Description},
-		{"videolink",l.VideoLink},
-		{"resource",l.Resource},
-		{"courseid",l.CourseId},
+		{"date",l.Date},
+		{"timestart",l.TimeStart},
+		{"timeend",l.TimeEnd},
+		{"scheduleid",l.ScheduleId},
+
 	}}}
 	_,err:=collection.UpdateOne(context.TODO(),filter,update)
 	if err!=nil{
@@ -95,9 +97,7 @@ func (ls *lessonrepo) GetLessonsByCourseId(id int64) ([]*Lesson,error){
 	}
 	var current_lessons []*Lesson
 	for _,v :=range lessons{
-		if v.CourseId == id{
-			current_lessons=append(current_lessons,v)
-		}
+		fmt.Println(v)
 	}
 	return current_lessons,nil
 }

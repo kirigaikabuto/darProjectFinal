@@ -5,6 +5,7 @@ import (
 	"DarProject-master/courses"
 	"DarProject-master/lessons"
 	"DarProject-master/redis_connect"
+	"DarProject-master/schedule"
 	"DarProject-master/students"
 	"DarProject-master/teachers"
 	"encoding/json"
@@ -84,6 +85,17 @@ func runRestApi(*cli.Context) error{
 	router.Methods("GET").Path("/lessons/{id}").HandlerFunc(lessonsendpoints.GetLesson("id"))
 	router.Methods("DELETE").Path("/lessons/{id}").HandlerFunc(lessonsendpoints.DeleteLesson("id"))
 	router.Methods("PUT").Path("/lessons/{id}").HandlerFunc(lessonsendpoints.UpdateLesson("id"))
+	//schedule
+	schedulerepo,err:=schedule.NewScheduleRepository(conf)
+	if err!=nil{
+		return err
+	}
+	scheduleendpoints:=schedule.NewEndpointsFactory(schedulerepo)
+	router.Methods("GET").Path("/schedule/").HandlerFunc(scheduleendpoints.GetSchedules())
+	router.Methods("POST").Path("/schedule/").HandlerFunc(scheduleendpoints.AddSchedule())
+	router.Methods("GET").Path("/schedule/{id}").HandlerFunc(scheduleendpoints.GetSchedule("id"))
+	router.Methods("DELETE").Path("/schedule/{id}").HandlerFunc(scheduleendpoints.DeleteSchedule("id"))
+	router.Methods("PUT").Path("/schedule/{id}").HandlerFunc(scheduleendpoints.UpdateSchedule("id"))
 	//courses
 
 	coursesrepo,err:=courses.NewCourseRepository(conf)
@@ -97,6 +109,8 @@ func runRestApi(*cli.Context) error{
 	router.Methods("DELETE").Path("/courses/{id}").HandlerFunc(coursesendpoints.DeleteCourse("id"))
 	router.Methods("PUT").Path("/courses/{id}").HandlerFunc(coursesendpoints.UpdateCourse("id"))
 	router.Methods("GET").Path("/courses/{id}/lessons/").HandlerFunc(coursesendpoints.GetLessons("id"))
+	//
+
 	//students
 	studentrepo,err:=students.NewStudentRepository(conf)
 	if err!=nil{
