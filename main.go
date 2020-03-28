@@ -5,6 +5,7 @@ import (
 	"DarProject-master/config"
 	"DarProject-master/courses"
 	"DarProject-master/lessons"
+	"DarProject-master/materials"
 	"DarProject-master/redis_connect"
 	"DarProject-master/schedule"
 	"DarProject-master/students"
@@ -74,6 +75,22 @@ func runRestApi(*cli.Context) error{
 	if conf.Port == "" {
 		return errors.New("Nothing found in MongoDB Port variable")
 	}
+	//materials
+	materialrepo,err:=materials.NewMaterialRepository(conf)
+	if err!=nil{
+		return err
+
+	}
+	materialsendpoints:=materials.NewEndpointsFactory(materialrepo)
+	router.Methods("GET").Path("/materials/").HandlerFunc(materialsendpoints.GetMaterials())
+	router.Methods("POST").Path("/materials/").HandlerFunc(materialsendpoints.AddMaterial())
+	router.Methods("GET").Path("/materials/{id}").HandlerFunc(materialsendpoints.GetMaterial("id"))
+	router.Methods("DELETE").Path("/materials/{id}").HandlerFunc(materialsendpoints.DeleteMaterial("id"))
+	router.Methods("PUT").Path("/materials/{id}").HandlerFunc(materialsendpoints.UpdateMaterial("id"))
+	router.Methods("GET").Path("/materials/{id}/stream/").HandlerFunc(materialsendpoints.StreamHandler("id","segName"))
+	router.Methods("GET").Path("/materials/{id}/stream/{segName}").HandlerFunc(materialsendpoints.StreamHandler("id","segName"))
+
+
 	//attendances
 	attendancerepo,err:=attendances.NewAttendanceRepository(conf)
 	if err!=nil{
